@@ -1,0 +1,47 @@
+photo_precomp();//执行脚本
+
+function photo_precomp(){
+   app.beginUndoGroup('photo_precomp');//undo 
+   var curActiveItem = app.project.activeItem;//用来给后面判断是否选择了item
+   var curItemSels = app.project.selection;// 定义一个Item objects数组 赋值给变量curItemSels
+   //alert(curActiveItem);
+   //alert(curItemSels.length);
+        if(curItemSels.length == 0){//如果未选择任何素材
+            alert("Please select at least one item!") 
+        }else{
+                for(var i = 0; i < curItemSels.length; i++){//for循环遍历每个被选中的item
+                    //新建合成
+                    //if(curItemSels[i] instanceof FootageItem){
+                        var curItem = curItemSels[i]; 
+                        var newComp = precompFootage(i, curItem); //调用素材预合成功能
+                        var curLayer = newComp.layer(1);
+                        scaleFootage(curLayer, newComp.width);//调用素材缩放适应窗口功能
+                        //alert(curItemSels[i].width);
+                    //}else{ alert("Index of " + (i+1) +" is not a footage!");}
+                }  
+        }
+ 
+   app.endUndoGroup();
+}
+//功能：将所选素材进行预合成
+function precompFootage(i, m_curItem){
+    var photoCompIn = i +1;
+    var name = "photoFrame_" + photoCompIn;
+    var width = 1280;
+    var height = 720;
+    var pixelAspect = 1.0;
+    var duration = 12.0;
+    var frameRate = 25;
+    var photoComp = app.project.items.addComp(name, width, height, pixelAspect, duration, frameRate);
+    //将所选素材放入新建合成内
+    photoComp.layers.add(m_curItem);
+    return photoComp;
+}
+
+//功能：将素材合成内图片大小缩放至屏幕大小
+function scaleFootage(mLayer, mCompWidth){
+   var sourceWidth = mLayer.width;
+   var s = (mCompWidth / sourceWidth * 100 + 0.2).toFixed(2);
+   mLayer.property("ADBE Transform Group").property("ADBE Scale").setValue([s, s]);
+   //alert(s);
+}
